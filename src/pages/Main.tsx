@@ -45,6 +45,12 @@ const Main: React.FC<Props> = ({ user = {} }) => {
 			<Link to={`/products`} style={linkStyle}>
 				View Products
 			</Link>
+			<Link to={`/credit_cards`} style={linkStyle}>
+				View Credit Cards
+			</Link>
+			<Link to={`/transactions`} style={linkStyle}>
+				View Purchases
+			</Link>
 		</div>
 	);
 };

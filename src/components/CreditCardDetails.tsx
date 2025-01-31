@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
-interface Product {
+interface CreditCard {
 	id: number;
 	name: string;
-	category: string;
-	quantity: number;
-	price: number;
+	card_number: string;
+	expiration_date: string;
+	cvv: string;
 }
 
-const ProductDetail: React.FC = () => {
+const CreditCardDetail: React.FC = () => {
 	const { id } = useParams();
-	const [product, setProduct] = useState<Product | null>(null);
+	const [creditCard, setCreditCard] = useState<CreditCard | null>(null);
 
 	useEffect(() => {
 		async function fetchData() {
 			const response = await axios.get(
-				`http://localhost:3000/products/${id}`,
+				`http://localhost:3000/credit_cards/${id}`,
 				{
 					headers: {
 						Authorization: localStorage.getItem('auth_token'),
@@ -26,7 +26,7 @@ const ProductDetail: React.FC = () => {
 					},
 				}
 			);
-			setProduct(response.data);
+			setCreditCard(response.data);
 		}
 
 		fetchData();
@@ -52,10 +52,10 @@ const ProductDetail: React.FC = () => {
 		// backgroundColor: 'white',
 	};
 
-	if (!product) {
+	if (!creditCard) {
 		return (
 			<div style={containerStyle}>
-				<h1 style={headerStyle}>Product Detail</h1>
+				<h1 style={headerStyle}>Credit Card Detail</h1>
 				<p>Loading...</p>
 			</div>
 		);
@@ -63,25 +63,25 @@ const ProductDetail: React.FC = () => {
 
 	return (
 		<div style={containerStyle}>
-			<h1 style={headerStyle}>Product Detail</h1>
+			<h1 style={headerStyle}>Credit Card Detail</h1>
 			<div style={productInfoStyle}>
 				<p>
-					<strong>Name:</strong> {product.name}
+					<strong>Name:</strong> {creditCard.name}
 				</p>
 				<p>
-					<strong>Category:</strong> {product.category}
+					<strong>Card Number:</strong> {creditCard.card_number}
 				</p>
 				<p>
-					<strong>Quantity:</strong> {product.quantity}
+					<strong>Expiration Date:</strong> {creditCard.expiration_date}
 				</p>
 				<p>
-					<strong>Price:</strong> ${product.price.toFixed(2)}
+					<strong>CVV:</strong> {creditCard.cvv}
 				</p>
 			</div>
 			<div style={{ marginTop: '20px' }}>
-				<Link to={`/products/${id}/edit`}>Edit</Link>
+				<Link to={`/credit_cards/${id}/edit`}>Edit</Link>
 				<Link
-					to={`/products/${id}/delete`}
+					to={`/credit_cards/${id}/delete`}
 					style={{ marginLeft: '10px' }}
 				>
 					Delete
@@ -91,4 +91,4 @@ const ProductDetail: React.FC = () => {
 	);
 };
 
-export default ProductDetail;
+export default CreditCardDetail;

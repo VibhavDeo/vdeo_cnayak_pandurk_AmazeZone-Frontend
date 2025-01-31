@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
-interface Product {
-	id: number;
-	name: string;
-	category: string;
-	quantity: number;
-	price: number;
+interface Transaction {
+    id: 0,
+    quantity: '',
+    total_cost: '',
+    product_id: '',
+    credit_card_id: '',
 }
 
-const ProductDetail: React.FC = () => {
+const TransactionDetail: React.FC = () => {
 	const { id } = useParams();
-	const [product, setProduct] = useState<Product | null>(null);
+	const [transaction, setTransaction] = useState<Transaction | null>(null);
 
 	useEffect(() => {
 		async function fetchData() {
 			const response = await axios.get(
-				`http://localhost:3000/products/${id}`,
+				`http://localhost:3000/transactions/${id}`,
 				{
 					headers: {
 						Authorization: localStorage.getItem('auth_token'),
@@ -26,7 +26,7 @@ const ProductDetail: React.FC = () => {
 					},
 				}
 			);
-			setProduct(response.data);
+			setTransaction(response.data);
 		}
 
 		fetchData();
@@ -52,10 +52,10 @@ const ProductDetail: React.FC = () => {
 		// backgroundColor: 'white',
 	};
 
-	if (!product) {
+	if (!transaction) {
 		return (
 			<div style={containerStyle}>
-				<h1 style={headerStyle}>Product Detail</h1>
+				<h1 style={headerStyle}>Credit Card Detail</h1>
 				<p>Loading...</p>
 			</div>
 		);
@@ -63,25 +63,24 @@ const ProductDetail: React.FC = () => {
 
 	return (
 		<div style={containerStyle}>
-			<h1 style={headerStyle}>Product Detail</h1>
+			<h1 style={headerStyle}>Credit Card Detail</h1>
 			<div style={productInfoStyle}>
 				<p>
-					<strong>Name:</strong> {product.name}
+					<strong>Quantity:</strong> {transaction.quantity}
 				</p>
 				<p>
-					<strong>Category:</strong> {product.category}
+					<strong>Total Cost:</strong> {transaction.total_cost}
 				</p>
 				<p>
-					<strong>Quantity:</strong> {product.quantity}
+					<strong>Product ID:</strong> {transaction.product_id}
 				</p>
 				<p>
-					<strong>Price:</strong> ${product.price.toFixed(2)}
+					<strong>Credit Card ID:</strong> {transaction.credit_card_id}
 				</p>
 			</div>
 			<div style={{ marginTop: '20px' }}>
-				<Link to={`/products/${id}/edit`}>Edit</Link>
 				<Link
-					to={`/products/${id}/delete`}
+					to={`/transactions/${id}/delete`}
 					style={{ marginLeft: '10px' }}
 				>
 					Delete
@@ -91,4 +90,4 @@ const ProductDetail: React.FC = () => {
 	);
 };
 
-export default ProductDetail;
+export default TransactionDetail;

@@ -2,19 +2,32 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-const ProductList: React.FC = () => {
-	const [products, setProducts] = useState([]);
+interface CreditCardProps {
+	flexDirection?: 'column';
+	textAlign?: 'center';
+}
+
+const CreditCardList: React.FC<CreditCardProps> = ({ flexDirection, textAlign }) => {
+	const [creditCards, setCreditCards] = useState([
+		{
+			id: 0,
+			name: '',
+			card_number: '',
+			expiration_date: '',
+			cvv: '',
+		}
+	]);
 
 	useEffect(() => {
 		async function fetchData() {
-			const response = await axios.get('http://localhost:3000/products', {
+			const response = await axios.get('http://localhost:3000/credit_cards', {
 				headers: {
 					Authorization: localStorage.getItem('auth_token'),
 					Accept: 'application/json',
 					'Content-Type': 'application/json',
 				},
 			}); // Adjust the API endpoint as needed
-			setProducts(response.data);
+			setCreditCards(response.data);
 		}
 
 		fetchData();
@@ -24,7 +37,7 @@ const ProductList: React.FC = () => {
 		width: '90vw',
 		height: '100vh',
 		display: 'flex',
-		flexDirection: 'column',
+		flexDirection: flexDirection || 'column',
 		marginLeft: '16px',
 	};
 
@@ -47,7 +60,7 @@ const ProductList: React.FC = () => {
 
 	const linkStyle = {
 		width: '10%',
-		textAlign: 'center',
+		textAlign: textAlign || 'center',
 		textDecoration: 'none',
 		marginLeft: 'auto',
 		padding: '5px 10px',
@@ -56,8 +69,8 @@ const ProductList: React.FC = () => {
 		borderRadius: '4px',
 	};
 	const linkStyle2 = {
-		width: '10%',
-		textAlign: 'center',
+		width: '15%',
+		textAlign: textAlign || 'center',
 		textDecoration: 'none',
 		marginTop: '5%',
 		padding: '5px 10px',
@@ -71,28 +84,27 @@ const ProductList: React.FC = () => {
 
 	return (
 		<div style={pageStyle}>
-			<h1 style={headerStyle}>Product List</h1>
+			<h1 style={headerStyle}>Credit Card List</h1>
 			<ul>
-				{products.map((product) => (
-					<li key={product.id} style={listItemStyle}>
+				{creditCards.map((creditCard) => (
+					<li key={creditCard.id} style={listItemStyle}>
 						<div style={listTitleStyle}>
-							{product.name} - {product.category} - $
-							{product.price.toFixed(2)}
+							{creditCard.name} - {creditCard.card_number}
 						</div>
-						<Link to={`/products/${product.id}`} style={linkStyle}>
+            <div style={listTitleStyle}>
+							<b>CVV:</b> {creditCard.cvv} <b>EXP:</b> {creditCard.expiration_date}
+						</div>
+						<Link to={`/credit_cards/${creditCard.id}`} style={linkStyle}>
 							Show
 						</Link>
-						<Link to={`/transactions/new`} state={{productId: product.id}} style={linkStyle}>
-							Purchase
-						</Link>
 						<Link
-							to={`/products/${product.id}/edit`}
+							to={`/credit_cards/${creditCard.id}/edit`}
 							style={linkStyle}
 						>
 							Edit
 						</Link>
 						<Link
-							to={`/products/${product.id}/delete`}
+							to={`/credit_cards/${creditCard.id}/delete`}
 							style={linkStyle}
 						>
 							Delete
@@ -100,11 +112,11 @@ const ProductList: React.FC = () => {
 					</li>
 				))}
 			</ul>
-			<Link to={`/products/new`} style={linkStyle2}>
-				New Product
+			<Link to={`/credit_cards/new`} style={linkStyle2}>
+				New Credit Card
 			</Link>
 		</div>
 	);
 };
 
-export default ProductList;
+export default CreditCardList;

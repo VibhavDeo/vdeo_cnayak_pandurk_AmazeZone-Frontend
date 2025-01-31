@@ -2,21 +2,30 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const ProductForm: React.FC = () => {
+// Components
+import Error from './Error';
+
+interface CreditCardFormProps {
+	flexDirection?: 'column';
+}
+
+
+const CreditCardForm: React.FC<CreditCardFormProps> = ({ flexDirection }) => {
 	const { id } = useParams();
-	const [product, setProduct] = useState({
+	const [creditCard, setCreditCard] = useState({
 		name: '',
-		category: '',
-		quantity: 0,
-		price: 0,
+		card_number: '',
+		expiration_date: '',
+		cvv: '',
 	});
+	const [showError, setShowError] = useState(false);
 
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		async function fetchProductData() {
+		async function fetchCreditCardData() {
 			const response = await axios.get(
-				`http://localhost:3000/products/${id}`,
+				`http://localhost:3000/credit_cards/${id}`,
 				{
 					headers: {
 						Authorization: localStorage.getItem('auth_token'),
@@ -25,41 +34,50 @@ const ProductForm: React.FC = () => {
 					},
 				}
 			);
-			setProduct(response.data);
+			setCreditCard(response.data);
 		}
 		if (id) {
-			fetchProductData();
+			fetchCreditCardData();
 		}
 	}, [id]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setProduct({ ...product, [name]: value });
+		setCreditCard({ ...creditCard, [name]: value });
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (id) {
-			// Update existing product
-			await axios.put(`http://localhost:3000/products/${id}`, product, {
-				headers: {
-					Authorization: localStorage.getItem('auth_token'),
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			});
-		} else {
-			// Create a new product
-			await axios.post('http://localhost:3000/products', product, {
-				headers: {
-					Authorization: localStorage.getItem('auth_token'),
-					Accept: 'application/json',
-					'Content-Type': 'application/json',
-				},
-			});
+		const regex = new RegExp('[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+		console.log(regex.test(creditCard.expiration_date));
+		if(!regex.test(creditCard.expiration_date)){
+			setShowError(true);
 		}
-		// Redirect to product list page or do something else after submission
-		navigate('/products');
+		else if (id) {
+			// Update existing credit card
+			await axios.put(`http://localhost:3000/credit_cards/${id}`, creditCard, {
+				headers: {
+					Authorization: localStorage.getItem('auth_token'),
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+			});
+			// Redirect to credit card list page or do something else after submission
+			navigate('/credit_cards');
+			
+		} else {
+			// Create a new credit card
+			await axios.post('http://localhost:3000/credit_cards', creditCard, {
+				headers: {
+					Authorization: localStorage.getItem('auth_token'),
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+			});
+
+			// Redirect to credit card list page or do something else after submission
+			navigate('/credit_cards');
+		}
 	};
 
 	const formStyle = {
@@ -69,7 +87,7 @@ const ProductForm: React.FC = () => {
 		height: '100vh',
 		width: '100vw',
 		display: 'flex',
-		flexDirection: 'column',
+		flexDirection: flexDirection || 'column',
 		alignItems: 'center',
 		justifyContent: 'center',
 	};
@@ -94,7 +112,7 @@ const ProductForm: React.FC = () => {
 
 	const buttonStyle = {
 		backgroundColor: '#007bff',
-		color: 'white',
+		// color: 'white',
 		padding: '10px 20px',
 		border: 'none',
 		borderRadius: '4px',
@@ -104,45 +122,47 @@ const ProductForm: React.FC = () => {
 	return (
 		<div style={formStyle}>
 			<h1 style={headerStyle}>
-				{id ? 'Edit Product' : 'Create Product'}
+				{id ? 'Edit Credit Card' : 'Create Credit Card'}
 			</h1>
+		{showError && <Error message='Card Expiration Date Invalid'/>}
+      <p>Enter exp date in yyyy-MM-dd format. Not validated</p>
 			<form onSubmit={handleSubmit}>
 				<label style={labelStyle}>
 					Name:
 					<input
 						type='text'
 						name='name'
-						value={product.name}
+						value={creditCard.name}
 						onChange={handleChange}
 						style={inputStyle}
 					/>
 				</label>
 				<label style={labelStyle}>
-					Category:
+					Card Number:
 					<input
 						type='text'
-						name='category'
-						value={product.category}
+						name='card_number'
+						value={creditCard.card_number}
 						onChange={handleChange}
 						style={inputStyle}
 					/>
 				</label>
 				<label style={labelStyle}>
-					Quantity:
+					Expiration Date:
 					<input
-						type='number'
-						name='quantity'
-						value={product.quantity}
+						type='text'
+						name='expiration_date'
+						value={creditCard.expiration_date}
 						onChange={handleChange}
 						style={inputStyle}
 					/>
 				</label>
 				<label style={labelStyle}>
-					Price:
+					CVV:
 					<input
-						type='number'
-						name='price'
-						value={product.price}
+						type='text'
+						name='cvv'
+						value={creditCard.cvv}
 						onChange={handleChange}
 						style={inputStyle}
 					/>
@@ -155,4 +175,4 @@ const ProductForm: React.FC = () => {
 	);
 };
 
-export default ProductForm;
+export default CreditCardForm;
